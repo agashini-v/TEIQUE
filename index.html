@@ -1,0 +1,58 @@
+index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEIQue-SF: Emotional Intelligence Questionnaire</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Trait Emotional Intelligence Questionnaire - Short Form (TEIQue-SF)</h1>
+        <form id="tei-form">
+            {% for i in range(1, 31) %}
+                <div class="question">
+                    <label for="q{{ i }}">Question {{ i }}: Example text for question {{ i }}.</label><br>
+                    {% for j in range(1, 8) %}
+                        <input type="radio" name="q{{ i }}" value="{{ j }}" required> {{ j }}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit">Submit</button>
+        </form>
+
+        <div id="result" style="display: none;">
+            <h2>Your Emotional Intelligence Score: <span id="score"></span></h2>
+            <p id="feedback"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('tei-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            fetch('/submit', {
+                method: 'POST',
+                body: new URLSearchParams(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('score').textContent = data.score;
+                document.getElementById('feedback').textContent = data.feedback;
+            })
+            .catch(error => {
+                alert("There was an error submitting the form.");
+            });
+        });
+    </script>
+</body>
+</html>
